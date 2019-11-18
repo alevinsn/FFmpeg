@@ -44,11 +44,13 @@ install-progs-$(CONFIG_SHARED): install-libs
 install-progs: install-progs-yes $(AVPROGS)
 	$(Q)mkdir -p "$(BINDIR)"
 	$(INSTALL) -c -m 755 $(AVPROGS) "$(BINDIR)"
+	$(if $(PROG_INSTALL_EXTRA_BIN), $(INSTALL) -m 644 $(PROG_INSTALL_EXTRA_BIN) "$(BINDIR)")
 
 uninstall: uninstall-progs
 
 uninstall-progs:
 	$(RM) $(addprefix "$(BINDIR)/", $(ALLAVPROGS))
+	$(if $(PROG_INSTALL_EXTRA_BIN), $(RM) $(addprefix "$(BINDIR)/", $(PROG_INSTALL_EXTRA_BIN)))
 
 clean::
 	$(RM) $(ALLAVPROGS) $(ALLAVPROGS_G) $(CLEANSUFFIXES:%=fftools/%)
