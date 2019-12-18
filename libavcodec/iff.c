@@ -456,11 +456,12 @@ static av_cold int decode_init(AVCodecContext *avctx)
  */
 static void decodeplane8(uint8_t *dst, const uint8_t *buf, int buf_size, int plane)
 {
-    const uint64_t *lut = plane8_lut[plane];
+    const uint64_t *lut;
     if (plane >= 8) {
         av_log(NULL, AV_LOG_WARNING, "Ignoring extra planes beyond 8\n");
         return;
     }
+    lut = plane8_lut[plane];
     do {
         uint64_t v = AV_RN64A(dst) | lut[*buf++];
         AV_WN64A(dst, v);
@@ -1358,6 +1359,8 @@ static void decode_delta_d(uint8_t *dst,
             bytestream2_seek_p(&pb, (offset / planepitch_byte) * pitch + (offset % planepitch_byte) + k * planepitch, SEEK_SET);
             if (opcode >= 0) {
                 uint32_t x = bytestream2_get_be32(&gb);
+                if (opcode && 4 + (opcode - 1LL) * pitch > bytestream2_get_bytes_left_p(&pb))
+                    continue;
                 while (opcode && bytestream2_get_bytes_left_p(&pb) > 0) {
                     bytestream2_put_be32(&pb, x);
                     bytestream2_skip_p(&pb, pitch - 4);

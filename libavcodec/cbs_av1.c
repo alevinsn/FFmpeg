@@ -939,6 +939,8 @@ static int cbs_av1_read_unit(CodedBitstreamContext *ctx,
         priv->spatial_id  = 0;
     }
 
+    priv->ref = (AV1ReferenceFrameState *)&priv->read_ref;
+
     switch (obu->header.obu_type) {
     case AV1_OBU_SEQUENCE_HEADER:
         {
@@ -1037,6 +1039,7 @@ static int cbs_av1_read_unit(CodedBitstreamContext *ctx,
 
     if (obu->obu_size > 0 &&
         obu->header.obu_type != AV1_OBU_TILE_GROUP &&
+        obu->header.obu_type != AV1_OBU_TILE_LIST &&
         obu->header.obu_type != AV1_OBU_FRAME) {
         int nb_bits = obu->obu_size * 8 + start_pos - end_pos;
 
@@ -1080,6 +1083,8 @@ static int cbs_av1_write_obu(CodedBitstreamContext *ctx,
 
     td = NULL;
     start_pos = put_bits_count(pbc);
+
+    priv->ref = (AV1ReferenceFrameState *)&priv->write_ref;
 
     switch (obu->header.obu_type) {
     case AV1_OBU_SEQUENCE_HEADER:
